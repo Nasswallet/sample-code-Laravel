@@ -1,6 +1,6 @@
 
 
-## Nasswallet Merchant API demo
+## Nasswallet Merchant API sample code using Laravel framework
 
 This project is a sample code to demonstrate how to make request to Nasswallet Payment Gateway APIs using Laravel.
 
