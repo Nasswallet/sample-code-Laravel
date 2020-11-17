@@ -6,6 +6,6 @@ This project is a sample code to demonstrate how to make request to Nasswallet P
 
 ### To get Started
 You need to make sure that you have prepared your development environment with laravel system requirements.
-### Run the following commands:
-# composer install
-# npm install
+#### Run the following commands:
+##### composer install
+##### npm install
