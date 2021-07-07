@@ -13,7 +13,7 @@ use Illuminate\Support\Facades\Redirect;
 class PaymentController extends Controller
 {
 
-    private  $baseURl = 'https://uatgw.nasswallet.com/payment/transaction';
+    private  $baseURl = 'https://uatgw1.nasswallet.com/payment/transaction';
 
     Private $username = "";
     Private $password = "";
@@ -74,7 +74,7 @@ class PaymentController extends Controller
         )->body());
 
        if($response->responseCode == 0 && $response->data->transactionId) {
-          return \redirect()->to("https://uatcheckout.nasswallet.com/?id={$response->data->transactionId}&token={$response->data->token}&userIdentifier={$payload['data']['userIdentifier']}");
+          return \redirect()->to("https://uatcheckout1.nasswallet.com/?id={$response->data->transactionId}&token={$response->data->token}&userIdentifier={$payload['data']['userIdentifier']}");
        } else {
            dd('Oops, something went wrong!',"Error Code: {$response->errCode}" );
        }
