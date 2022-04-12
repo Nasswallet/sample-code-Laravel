@@ -15,14 +15,14 @@ use Illuminate\Support\Facades\Redirect;
 class PaymentController extends Controller
 {
 
-    Private $merchantId = "7500077974";
-    Private $password = "Nass@2020";
+    Private $merchantId = "";
+    Private $password = "";
     Private $grantType = "password";
     Private $orderId = "123";
-    Private $transactionPin = "135758";
+    Private $transactionPin = "";
     Private $amount = "10";
     Private $languageCode = "en";
-    Private $basicToken = "Basic TUVSQ0hBTlRfUEFZTUVOVF9HQVRFV0FZOk1lcmNoYW50R2F0ZXdheUBBZG1pbiMxMjM=";
+    Private $basicToken = "";
 
     
     public function __construct()
