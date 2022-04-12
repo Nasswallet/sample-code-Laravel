@@ -38,7 +38,7 @@
 
                             <form  action="/payment" method="post">
                                 @csrf
-                                <button type="submit" name="makepayment"
+                                <button type="submit" name="initiateTransaction"
 
                                         class="bg-blue-500 rounded-lg px-4
         py-2 font-semibold text-white

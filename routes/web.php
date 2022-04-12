@@ -19,12 +19,7 @@ Route::get('/', function () {
 
 
 
-Route::post('/payment', 'PaymentController@makePayment');
+Route::post('/payment', 'PaymentController@login');
 
 
-
-Route::get('/transactions', function() {
-    return view('transaction');
-} );
-
-Route::post('/transactions', 'PaymentController@getTransaction');
+ 

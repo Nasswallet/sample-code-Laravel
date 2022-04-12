@@ -6,6 +6,8 @@ use App\Payment;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Http;
+use GuzzleHttp\Client;
+
 use Illuminate\Http\Client\Response;
 use Illuminate\Support\Facades\Redirect;
 
@@ -13,75 +15,88 @@ use Illuminate\Support\Facades\Redirect;
 class PaymentController extends Controller
 {
 
-    private  $baseURl = 'https://uatgw1.nasswallet.com/payment/transaction';
-
-    Private $username = "";
-    Private $password = "";
+    Private $merchantId = "7500077974";
+    Private $password = "Nass@2020";
     Private $grantType = "password";
-    Private $orderId = "";
-    Private $transactionPin = "";
+    Private $orderId = "123";
+    Private $transactionPin = "135758";
     Private $amount = "10";
     Private $languageCode = "en";
-    Private $basicToken = "";
+    Private $basicToken = "Basic TUVSQ0hBTlRfUEFZTUVOVF9HQVRFV0FZOk1lcmNoYW50R2F0ZXdheUBBZG1pbiMxMjM=";
 
+    
+    public function __construct()
+    {
+        $this->client = new \GuzzleHttp\Client([
+            'base_uri' => 'https://uatgw1.nasswallet.com/payment/transaction/',      
+            'timeout' => '1000'
+        ]);
+    }
 
-
-    public function  getMerchantToken() {
-        $payload = [
+    public function  login() {
+         $body = [
             'data' => [
-                'username' => $this->username,
+                'username' => $this->merchantId,
                 'password' => $this->password,
                 'grantType' => $this->grantType
             ]
         ];
 
-       return \GuzzleHttp\json_decode(Http::withHeaders([
-            'authorization' => "{$this->basicToken}"
+ 
+        $response = json_decode($this->client->request('POST', 'login', [
+            "headers" => ['authorization' => "$this->basicToken"],
+            'json' => $body
+            
+        ])->getBody());
+        
+        if ($response->responseCode == 0 && $response->data->access_token) {
+            $token =  $response->data->access_token;
 
-        ])->post("{$this->baseURl}/login",
-            $payload
-        )->body());
+            $this->initiateTransaction($token);
+
+        } 
+        else
+        {
+             return var_dump($response->message);
+        }
+
     }
 
-    public function makePayment() {
-        $response = $this->getMerchantToken();
-        $payload = [
+    public function initiateTransaction($token) {
+        
+        $body = [
             'data' => [
-            'userIdentifier' => $this->username,
-             'transactionPin' => $this->transactionPin,
+            'userIdentifier' => $this->merchantId,
+            'transactionPin' => $this->transactionPin,
             'orderId' => $this->orderId,
             'amount' => $this->amount,
             'languageCode' => $this->languageCode
             ]
         ];
 
-        if($response->responseCode == 0 && $response->data->access_token) {
+        $response = json_decode($this->client->request('POST', 'initTransaction', [
+            "headers" => ['authorization' => "Bearer $token"],
+            "json" => $body
+        ])->getBody());
 
-           return $this->payWithNasswallet($response->data->access_token, $payload);
+        if ($response->responseCode == 0 && $response->data->transactionId) {
+            
+            $this->redirectUserToPaymentGateway($response->data->transactionId,$response->data->token);
+           
+                
+         } 
+         else 
+         {
+            dd('Oops, something went wrong!',"Error Code: {$response->errCode}");
+         }        
 
-        } else {
-             return dd("$response->message , $response->errCode");
-        }
     }
 
+    public function redirectUserToPaymentGateway($initaitedTransactionId, $token) {
 
-    public  function  payWithNasswallet($access_token, $payload) {
-
-        $response = \GuzzleHttp\json_decode(Http::withHeaders([
-            'authorization' => "Bearer  {$access_token}"
-        ])->post("{$this->baseURl}/initTransaction",
-            $payload
-        )->body());
-
-       if($response->responseCode == 0 && $response->data->transactionId) {
-          return \redirect()->to("https://uatcheckout1.nasswallet.com/?id={$response->data->transactionId}&token={$response->data->token}&userIdentifier={$payload['data']['userIdentifier']}");
-       } else {
-           dd('Oops, something went wrong!',"Error Code: {$response->errCode}" );
-       }
-     }
-
-
-
+        return  \redirect()->to("https://uatcheckout1.nasswallet.com/payment-gateway?={$initaitedTransactionId}&token={$token}&userIdentifier={$this->merchantId}");
+    
+    }
 
    
 }
